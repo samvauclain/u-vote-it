@@ -15,9 +15,11 @@ const db = mysql.createConnection({
   // Your MySQL username,
   user: 'root',
   // Your MySQL password
-  password: '',
+  password: 'mUu8>a8E-,E>;:7Q',
   database: 'election'
-});
+},
+  console.log('Connected to the employee tracker database.')
+);
 
 // Get all candidates and their party affiliation
 app.get('/api/candidates', (req, res) => {
