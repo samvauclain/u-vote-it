@@ -5,24 +5,24 @@ const inputCheck = require('../../utils/inputCheck');
 
 // Get all candidates and their party affiliation
 router.get('/candidates', (req, res) => {
-    const sql = `SELECT candidates.*, parties.name 
-                  AS party_name 
-                  FROM candidates 
-                  LEFT JOIN parties 
-                  ON candidates.party_id = parties.id`;
-                  
-    db.query(sql, (err, rows) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({
-        message: 'success',
-        data: rows
-      });
+  const sql = `SELECT candidates.*, parties.name 
+                AS party_name 
+                FROM candidates 
+                LEFT JOIN parties 
+                ON candidates.party_id = parties.id`;
+
+  db.query(sql, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: rows
     });
+  });
 });
-  
+
 // Get single candidate with party affiliation
 router.get('/candidate/:id', (req, res) => {
   const sql = `SELECT candidates.*, parties.name 
@@ -44,10 +44,9 @@ router.get('/candidate/:id', (req, res) => {
     });
   });
 });
-  
+
 // Create a candidate
 router.post('/candidate', ({ body }, res) => {
-  // Candidate is allowed not to be affiliated with a party
   const errors = inputCheck(
     body,
     'first_name',
@@ -74,15 +73,13 @@ router.post('/candidate', ({ body }, res) => {
     }
     res.json({
       message: 'success',
-      data: body,
-      changes: result.affectedRows
+      data: body
     });
   });
 });
-  
+
 // Update a candidate's party
 router.put('/candidate/:id', (req, res) => {
-  // Candidate is allowed to not have party affiliation
   const errors = inputCheck(req.body, 'party_id');
   if (errors) {
     res.status(400).json({ error: errors });
@@ -92,10 +89,10 @@ router.put('/candidate/:id', (req, res) => {
   const sql = `UPDATE candidates SET party_id = ? 
                WHERE id = ?`;
   const params = [req.body.party_id, req.params.id];
+
   db.query(sql, params, (err, result) => {
     if (err) {
       res.status(400).json({ error: err.message });
-      // check if a record was found
     } else if (!result.affectedRows) {
       res.json({
         message: 'Candidate not found'
@@ -109,14 +106,14 @@ router.put('/candidate/:id', (req, res) => {
     }
   });
 });
-  
+
 // Delete a candidate
 router.delete('/candidate/:id', (req, res) => {
   const sql = `DELETE FROM candidates WHERE id = ?`;
-  const params = [req.params.id];
-  db.query(sql, params, (err, result) => {
+
+  db.query(sql, req.params.id, (err, result) => {
     if (err) {
-      res.statusMessage(400).json({ error: res.message });
+      res.status(400).json({ error: res.message });
     } else if (!result.affectedRows) {
       res.json({
         message: 'Candidate not found'
